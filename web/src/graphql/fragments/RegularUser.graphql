@@ -1,0 +1,5 @@
+# fragment is a way to reuse a part of a query
+fragment RegularUser on User {
+  id
+  username
+}
