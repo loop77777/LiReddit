@@ -14,12 +14,17 @@ import connectRedis from "connect-redis";
 import { MyContext } from "./types";
 import cors from "cors";
 
+// main function
 const main = async () => {
+  // mikro-orm config
   const orm = await MikroORM.init(microConfig);
+  // setting up migrations and keep tracks for migrations
   await orm.getMigrator().up();
   const app = express();
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
+  // setting cors on express, we can set on appolo aswell.
+  // setting on appolo will set on it's route and we want to set it on all of our route's so we set on express
   app.use(
     cors({
       origin: "http://localhost:3000",
@@ -29,11 +34,11 @@ const main = async () => {
   app.use(
     session({
       name: COOKIE_NAME,
-      store: new RedisStore({ client: redisClient, disableTouch: true }),
+      store: new RedisStore({ client: redisClient, disableTouch: true }), // disableTouch: true means that session will not expire by ttl
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "lax", // csrf
         secure: __prod__, // cookie only works in https
       },
       saveUninitialized: false,
@@ -41,11 +46,14 @@ const main = async () => {
       resave: false,
     })
   );
+  // initialize apollo server with graphql endpoint
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
+    // context is a special object that is accessible by all resolvers
+    // if show errors of type different, remove myContext
     context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
   });
 
@@ -57,6 +65,7 @@ const main = async () => {
   app.listen(4000, () => {
     console.log("server started on localhost:4000");
   });
+  //   create post using mikro-orm, and persist it to db
   //   const post = await orm.em.create(Post, { title: "my first post" });
   //   await orm.em.persistAndFlush(post);
   //   const posts = await orm.em.find(Post, {})

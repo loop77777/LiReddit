@@ -9,7 +9,7 @@ export class User {
   id!: number;
 
   @Field(() => String)
-  @Property({ type: "date" })
+  @Property({ type: "date" }) // regular column
   createdAt = new Date();
 
   @Field(() => String)
@@ -17,7 +17,7 @@ export class User {
   updatedAt = new Date();
 
   @Field()
-  @Property({ type: "text", unique: true })
+  @Property({ type: "text", unique: true }) // unique column
   username!: string;
 
   @Property({ type: "text" })

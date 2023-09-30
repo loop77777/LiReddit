@@ -9,7 +9,7 @@ export class Post {
   id!: number;
 
   @Field(() => String)
-  @Property({ type: "date" })
+  @Property({ type: "date" }) // regular column and specific type
   createdAt = new Date();
 
   @Field(() => String)

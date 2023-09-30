@@ -29,7 +29,6 @@ const type_graphql_1 = require("type-graphql");
 const User_1 = require("../entities/User");
 const argon2_1 = __importDefault(require("argon2"));
 const constants_1 = require("../constants");
-const session = require("express-session");
 let UsernamePasswordInput = class UsernamePasswordInput {
 };
 __decorate([
@@ -73,7 +72,6 @@ UserResponse = __decorate([
 let UserResolver = class UserResolver {
     me({ req, em }) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("session:", req.session);
             if (!req.session.userId) {
                 return null;
             }
@@ -159,12 +157,12 @@ let UserResolver = class UserResolver {
     }
     logout({ req, res }) {
         return new Promise((resolve) => req.session.destroy((err) => {
+            res.clearCookie(constants_1.COOKIE_NAME);
             if (err) {
                 console.log(err);
                 resolve(false);
                 return;
             }
-            res.clearCookie(constants_1.COOKIE_NAME);
             resolve(true);
         }));
     }

@@ -5,6 +5,7 @@ import path from "path";
 import { User } from "./entities/User";
 
 export default {
+  // setting up migrations and patterns as [tj]s files
   migrations: {
     path: path.join(__dirname, "./migrations"),
     pattern: /^[\w-]+\d+\.[tj]s$/,
@@ -14,9 +15,10 @@ export default {
 
   entities: [User, Post],
   dbName: "lireddit",
-  user: "postgress",
-  password: "12345",
+  user: "postgres",
+  password: "deeppostgres",
   type: "postgresql",
 
   debug: !__prod__,
+  // explicit setting type as parameter
 } as Parameters<typeof MikroORM.init>[0];

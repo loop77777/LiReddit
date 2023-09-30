@@ -13,8 +13,8 @@ import { User } from "../entities/User";
 import argon2 from "argon2";
 import express from "express";
 import { COOKIE_NAME } from "../constants";
-
-const session = require("express-session");
+import session from "express-session";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 @InputType()
 export class UsernamePasswordInput {
@@ -44,9 +44,10 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  //? query to get the current user
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req, em }: MyContext) {
-    console.log("session:", req.session);
+    // console.log("session:", req.session);
     // if not logged in
     if (!req.session.userId) {
       return null;
@@ -54,6 +55,8 @@ export class UserResolver {
     const user = await em.findOne(User, { id: req.session.userId });
     return user;
   }
+
+  //? register mutation
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UsernamePasswordInput,
@@ -84,7 +87,23 @@ export class UserResolver {
       username: options.username,
       password: hashedPassword,
     });
+    // let user //? it is used instead of const user for query builder
     try {
+      //* no need to use query builder here
+      // because we are not doing any complex queries
+      // just persisting the user and flushing the changes to the database
+      // but for demo purposes we are using query builder
+      // the first result is the user object
+      //  const result = await (em as EntityManager).createQueryBuilder(User).getKnexQuery().insert({
+      //    username: options.username,
+      //    password: hashedPassword,
+      // mikro orm will automatically add created_at and updated_at fields
+      // knex doesn't have this feature,it does'nt know which column to add
+      // so we need to add it manually
+      //   created_at: new Date(),
+      //   updated_at: new Date(),
+      // }).returning("*");
+      // user = result[0]; //? that's it we are done, the query builder will return the user object
       await em.persistAndFlush(user);
     } catch (err) {
       //duplicate username error
@@ -108,6 +127,7 @@ export class UserResolver {
     return { user };
   }
 
+  //? login mutation
   @Mutation(() => UserResponse)
   async login(
     @Arg("options") options: UsernamePasswordInput,
@@ -117,6 +137,7 @@ export class UserResolver {
     const user = await em.findOne(User, { username: options.username });
     if (!user) {
       return {
+        // returning errors as field errors
         errors: [
           {
             field: "username",
@@ -141,16 +162,19 @@ export class UserResolver {
       user,
     };
   }
+
+  //? logout mutation
+  // destroy the redis session and clear the cookie
   @Mutation(() => Boolean)
   logout(@Ctx() { req, res }: MyContext) {
     return new Promise((resolve) =>
       req.session.destroy((err) => {
+        res.clearCookie(COOKIE_NAME);
         if (err) {
           console.log(err);
           resolve(false);
           return;
         }
-        res.clearCookie(COOKIE_NAME);
         resolve(true);
       })
     );

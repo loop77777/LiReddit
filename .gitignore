@@ -1,0 +1,14 @@
+# dependencies
+/server/node_modules
+
+# Build files
+/server/dist
+
+# misc
+server/package-lock.json
+server/constants.ts
+
+# IDE files
+server/tsconfig.json
+server/tsconfig.prod.json
+server/mikro-orm.config.ts
