@@ -18,9 +18,10 @@ const Register: React.FC<registerProps> = ({}) => {
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ username: "", password: "" }}
+        initialValues={{ email: "", username: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
-          const response = await register(values);
+          // setting values as options object for login mutation to register as we add the options in register.graphql for email.
+          const response = await register({ options: values });
           //  console.log(response); //? if some point it bothers with errors, we can use query builder on the backend to set the user
           if (response.data?.register.errors) {
             setErrors(toErrorMap(response.data.register.errors));
@@ -38,6 +39,13 @@ const Register: React.FC<registerProps> = ({}) => {
               placeholder="enter a username"
               label="Username"
             />
+            <Box mt={4}>
+              <InputField
+                name="email"
+                placeholder="enter an email"
+                label="Email"
+              />
+            </Box>
             <Box mt={4}>
               <InputField
                 name="password"

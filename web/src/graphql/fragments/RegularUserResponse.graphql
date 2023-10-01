@@ -1,0 +1,9 @@
+# fragment is a way to reuse a part of a query
+fragment RegularUserResponse on UserResponse {
+  errors {
+    ...RegularError
+  }
+  user {
+    ...RegularUser
+  }
+}

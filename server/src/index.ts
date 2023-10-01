@@ -8,21 +8,25 @@ import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
-import redis from "redis";
+import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import { MyContext } from "./types";
 import cors from "cors";
+import { sendEmail } from "./utils/sendEmail";
+import { User } from "./entities/User";
 
 // main function
 const main = async () => {
   // mikro-orm config
   const orm = await MikroORM.init(microConfig);
+  // await orm.em.nativeDelete(User, {}); // to delete all of the users
   // setting up migrations and keep tracks for migrations
   await orm.getMigrator().up();
   const app = express();
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient();
+  // upgrading redis to ioredis to use async/await
+  const redis = new Redis();
   // setting cors on express, we can set on appolo aswell.
   // setting on appolo will set on it's route and we want to set it on all of our route's so we set on express
   app.use(
@@ -34,7 +38,7 @@ const main = async () => {
   app.use(
     session({
       name: COOKIE_NAME,
-      store: new RedisStore({ client: redisClient, disableTouch: true }), // disableTouch: true means that session will not expire by ttl
+      store: new RedisStore({ client: redis, disableTouch: true }), // disableTouch: true means that session will not expire by ttl
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
@@ -54,7 +58,7 @@ const main = async () => {
     }),
     // context is a special object that is accessible by all resolvers
     // if show errors of type different, remove myContext
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }), // added redis to access it in resolvers
   });
 
   apolloServer.applyMiddleware({

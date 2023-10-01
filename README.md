@@ -1,1 +1,3 @@
 # LiReddit
+
+/npm list --depth

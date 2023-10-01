@@ -1,0 +1,12 @@
+Steps to add a project to Git and create a .gitignore file:
+
+1. Initialize a Git repository in the root directory of your project by running the command `git init`.
+2. Create a `.gitignore` file in the root directory of your project by running the command `touch .gitignore`.
+3. Open the `.gitignore` file in a text editor and add the rules to ignore the `node_modules`, `package-lock.json`, `dist`, `build`, `coverage`, `.next`, `.env`, and `.env.local` directories and files, as well as the `node_modules` directory in the `server` directory.
+4. Save the `.gitignore` file and commit it to Git by running the commands `git add .gitignore` and `git commit -m "Add .gitignore file"`.
+5. Add the files in the root directory of your project to Git by running the command `git add .`.
+6. Commit the changes by running the command `git commit -m "Initial commit"`.
+7. Push the changes to the remote repository on GitHub by running the command `git push -u origin main`.
+
+If you accidentally added files or directories to Git that should be ignored, you can remove them from Git and the file system by running the command `git rm -r --cached <file-or-directory>` and then adding them to your `.gitignore` file.
+The command to check if a file or folder is being ignored by Git is git check-ignore. as in `git check-ignore -v <file-or-directory>`.
