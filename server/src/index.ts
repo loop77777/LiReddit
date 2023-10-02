@@ -1,7 +1,8 @@
-import "reflect-metadata";
-import { MikroORM } from "@mikro-orm/core";
+import "reflect-metadata"; // to use type-graphql, both mikro-orm and type-orm use this
+// mikro-orm imports
+// import { MikroORM } from "@mikro-orm/core";
+// import microConfig from "./mikro-orm.config";
 import { COOKIE_NAME, __prod__ } from "./constants";
-import microConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -11,18 +12,27 @@ import { UserResolver } from "./resolvers/user";
 import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
-import { MyContext } from "./types";
 import cors from "cors";
-import { sendEmail } from "./utils/sendEmail";
-import { User } from "./entities/User";
-
+// typeorm imports
+// connection is deprecated,changed to datasource
+import AppDataSource from "./datasource";
 // main function
 const main = async () => {
+  // typeorm config
+  // initialize datasoruce, connection is deprecated
+  await AppDataSource.initialize()
+    .then(() => {
+      console.log("Data Source has been initialized!");
+    })
+    .catch((err) => {
+      console.error("Error during Data Source initialization", err);
+    });
+
   // mikro-orm config
-  const orm = await MikroORM.init(microConfig);
+  // *const orm = await MikroORM.init(microConfig);
   // await orm.em.nativeDelete(User, {}); // to delete all of the users
   // setting up migrations and keep tracks for migrations
-  await orm.getMigrator().up();
+  //* await orm.getMigrator().up();
   const app = express();
   const RedisStore = connectRedis(session);
   // upgrading redis to ioredis to use async/await
@@ -58,7 +68,7 @@ const main = async () => {
     }),
     // context is a special object that is accessible by all resolvers
     // if show errors of type different, remove myContext
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }), // added redis to access it in resolvers
+    context: ({ req, res }) => ({ req, res, redis }), // added redis to access it in resolvers
   });
 
   apolloServer.applyMiddleware({
