@@ -9,6 +9,25 @@ import {
   RegisterMutation,
 } from "../src/generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
+import { pipe, tap } from "wonka";
+import { Exchange } from "urql";
+import router from "next/router";
+// global error handler
+const errorExchange: Exchange =
+  ({ forward }) =>
+  (ops$) => {
+    // ops$ is an observable
+    return pipe(
+      // pipe function chains together the series of observable operators
+      forward(ops$), // forward the ops$ observable to the next operator on errorExchange
+      tap(({ error }) => {
+        // tap contains the errors property
+        if (error?.message.includes("not authenticated")) {
+          router.replace("/login");
+        }
+      })
+    );
+  };
 
 // we are creating a function that will return the urql client and do ssr on the server
 // we are passing the ssrExchange as a parameter
@@ -69,6 +88,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
         },
       },
     }),
+    errorExchange,
     ssrExchange,
     fetchExchange,
   ],

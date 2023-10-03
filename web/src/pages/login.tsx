@@ -1,6 +1,6 @@
 import { Box, Button, Link, Flex } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { useRouter } from "next/dist/client/router";
+import { useRouter } from "next/router";
 import React from "react";
 import { InputField } from "../components/InputField";
 import { Wrapper } from "../components/Wrapper";
@@ -22,8 +22,12 @@ const Login: React.FC<{}> = ({}) => {
           if (response.data?.login.errors) {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
-            //worked
-            router.push("/");
+            if (typeof router.query.next === "string") {
+              router.push(router.query.next);
+            } else {
+              //worked
+              router.push("/");
+            }
           }
         }}
       >
@@ -43,7 +47,10 @@ const Login: React.FC<{}> = ({}) => {
               />
             </Box>
             <Flex mt={2}>
-              <Link href="/forgot-password" ml={"auto"}> forgot password </Link>
+              <Link href="/forgot-password" ml={"auto"}>
+                {" "}
+                forgot password{" "}
+              </Link>
             </Flex>
             <Button
               mt={4}

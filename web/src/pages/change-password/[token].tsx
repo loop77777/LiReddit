@@ -1,7 +1,7 @@
 import { Button, Box, Link, Flex } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { NextPage } from "next";
-import router from "next/router";
+import { useRouter } from "next/router";
 import { toErrorMap } from "../../../utils/toErrorMap";
 import { InputField } from "../../components/InputField";
 import { Wrapper } from "../../components/Wrapper";
@@ -10,8 +10,9 @@ import { useState } from "react";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 
-const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
-  // const router = useRouter();
+//? using router query params to get the token instead of getInitialProps
+const ChangePassword: NextPage = () => {
+  const router = useRouter();
   const [, changePassword] = useChangePasswordMutation();
   const [tokenError, setTokenError] = useState("");
 
@@ -22,7 +23,8 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
         onSubmit={async (values, { setErrors }) => {
           const response = await changePassword({
             newPassword: values.newPassword,
-            token,
+            token:
+              typeof router.query.token === "string" ? router.query.token : "",
           });
           console.log(response);
           if (response.data?.changePassword.errors) {
@@ -67,15 +69,6 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
       </Formik>
     </Wrapper>
   );
-};
-// this is a special function that next.js will run before rendering the page
-// it will receive the query object as an argument
-// and we can return an object that will be merged with the props
-// that are passed to the page component
-// this is useful for getting the token from the url
-// there is one more getServersideProps that is similar, but it runs on the server
-ChangePassword.getInitialProps = ({ query }) => {
-  return { token: query.token as string };
 };
 
 export default withUrqlClient(createUrqlClient)(ChangePassword);
