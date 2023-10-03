@@ -16,10 +16,12 @@ import cors from "cors";
 // typeorm imports
 // connection is deprecated,changed to datasource
 import AppDataSource from "./datasource";
+import { Post } from "./entities/Post";
 // main function
 const main = async () => {
   // typeorm config
   // initialize datasoruce, connection is deprecated
+
   await AppDataSource.initialize()
     .then(() => {
       console.log("Data Source has been initialized!");
@@ -27,6 +29,8 @@ const main = async () => {
     .catch((err) => {
       console.error("Error during Data Source initialization", err);
     });
+  // delete all posts
+  // await Post.delete({});
 
   // mikro-orm config
   // *const orm = await MikroORM.init(microConfig);

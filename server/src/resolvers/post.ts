@@ -1,5 +1,25 @@
+import { In } from "typeorm";
 import { Post } from "../entities/Post";
-import { Query, Resolver, Arg, Mutation } from "type-graphql";
+import {
+  Query,
+  Resolver,
+  Arg,
+  Mutation,
+  InputType,
+  Field,
+  Ctx,
+  UseMiddleware,
+} from "type-graphql";
+import { MyContext } from "../types";
+import { isAuth } from "../middleware/isAuth";
+
+@InputType()
+class PostInput {
+  @Field()
+  title: string;
+  @Field()
+  text: string;
+}
 
 @Resolver()
 export class PostResolver {
@@ -17,8 +37,15 @@ export class PostResolver {
 
   //? mutation to create a post
   @Mutation(() => Post)
-  async CreatePost(@Arg("title") title: string): Promise<Post> {
-    return Post.create({ title }).save();
+  @UseMiddleware(isAuth) // to check if user is logged in
+  async CreatePost(
+    @Arg("input") input: PostInput,
+    @Ctx() { req }: MyContext
+  ): Promise<Post> {
+    return Post.create({
+      ...input,
+      creatorId: req.session.userId,
+    }).save();
   }
 
   //? mutation to update a post

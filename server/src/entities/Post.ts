@@ -5,15 +5,37 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
+  ManyToOne,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()
-export class Post extends BaseEntity{// to use find and other methods
+export class Post extends BaseEntity {
+  // to use find and other methods
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @Field()
+  @Column()
+  title!: string;
+
+  @Field()
+  @Column()
+  text!: string;
+
+  @Field()
+  @Column({ type: "int", default: 0 })
+  points!: number;
+
+  @Field()
+  @Column()
+  creatorId: number;
+
+  @ManyToOne(() => User, (user) => user.posts)
+  creator: User;
 
   @Field(() => String)
   @CreateDateColumn() // regular column and specific type
@@ -22,8 +44,4 @@ export class Post extends BaseEntity{// to use find and other methods
   @Field(() => String)
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @Field()
-  @Column()
-  title!: string;
 }
