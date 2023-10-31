@@ -35,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
   } else {
     //user is logged in
     body = (
-      <Flex>
+      <Flex align={"center"}>
         <Box mr={3} color={"white"}>
           {data.me.username}
         </Box>
@@ -45,7 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
             logout({}); // we don't need to pass any options
           }}
           isLoading={logoutFetching}
-          variant="link"
+          // variant="link"
           colorScheme="purple"
         >
           logout
@@ -56,10 +56,10 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
   return (
     <Flex zIndex={1} position="sticky" top={0} bg="tan" p={4}>
       {/* purple */}
-      <Box ml={"auto"}>
+      <Flex ml={"auto"} alignItems={"center"}>
         {body}
-        {/* <DarkModeSwitch /> */}
-      </Box>
+        <DarkModeSwitch />
+      </Flex>
     </Flex>
   );
 };

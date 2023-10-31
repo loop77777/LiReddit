@@ -4,19 +4,75 @@ import { Navbar } from "../components/NavBar";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
-import { Link } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Link,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import { useState } from "react";
 
 const Index = () => {
-  const [{ data }] = usePostsQuery();
+  const [variables, setVariables] = useState<{
+    limit: number;
+    cursor: string | null;
+  }>({
+    limit: 33,
+    cursor: null,
+  });
+
+  console.log("variables", variables);
+  const [{ data, fetching }] = usePostsQuery({
+    variables,
+  });
+
+  if (!fetching && !data) {
+    return <div>query failed for some reason</div>;
+  }
+
   return (
     <Layout>
-      <Link href="/create-post">create post</Link>
+      <Flex>
+        <Heading>LiReddit</Heading>
+        <Button ml={"auto"} colorScheme="purple">
+          <Link href="/create-post">create post</Link>
+        </Button>
+      </Flex>
       <br />
-      {!data ? (
+      {!data && fetching ? (
         <div>loading...</div>
       ) : (
-        data.posts.map((p) => <div key={p.id}>{p.title}</div>)
+        <Stack spacing={8}>
+          {data!.posts.posts.map((p) => (
+            <Box key={p.id} p={5} shadow="md" borderWidth="1px">
+              <Heading fontSize="xl">{p.title}</Heading>
+              <Text mt={4}>{p.textSnippet}</Text>
+            </Box>
+          ))}
+        </Stack>
       )}
+      {data && data.posts.hasMore ? (
+        <Flex>
+          <Button
+            onClick={() => {
+              setVariables({
+                ...variables,
+                limit: variables.limit,
+                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
+              });
+            }}
+            isLoading={fetching}
+            m={"auto"}
+            my={8}
+            colorScheme="purple"
+          >
+            load more
+          </Button>
+        </Flex>
+      ) : null}
     </Layout>
   );
 };

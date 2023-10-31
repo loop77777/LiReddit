@@ -29,8 +29,9 @@ const main = async () => {
     .catch((err) => {
       console.error("Error during Data Source initialization", err);
     });
-  // delete all posts
+  // delete all posts 
   // await Post.delete({});
+  await AppDataSource.runMigrations()
 
   // mikro-orm config
   // *const orm = await MikroORM.init(microConfig);

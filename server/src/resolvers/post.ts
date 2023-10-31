@@ -6,12 +6,17 @@ import {
   Arg,
   Mutation,
   InputType,
+  ObjectType,
   Field,
   Ctx,
   UseMiddleware,
+  Int,
+  FieldResolver,
+  Root,
 } from "type-graphql";
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
+import AppDataSource from "../datasource";
 
 @InputType()
 class PostInput {
@@ -21,12 +26,43 @@ class PostInput {
   text: string;
 }
 
-@Resolver()
+@ObjectType()
+class PaginatedPosts {
+  @Field(() => [Post]) // to get the posts
+  posts: Post[];
+  @Field() // to get the hasMore
+  hasMore: boolean;
+}
+
+@Resolver(Post)
 export class PostResolver {
-  //? query to get all posts
-  @Query(() => [Post])
-  async posts(): Promise<Post[]> {
-    return Post.find();
+  //? field resolver to get the creator of the post
+  @FieldResolver(() => String) // to get the text snippet
+  textSnippet(@Root() root: Post) {
+    return root.text.slice(0, 50);
+  }
+
+  //? query to get all posts - pagination
+  @Query(() => PaginatedPosts)
+  async posts(
+    @Arg("limit", () => Int) limit: number,
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+  ): Promise<PaginatedPosts> {
+    const realLimit = Math.min(50, limit); // limit the number of posts to 50, +1 to check if there are more posts
+    const realLimitPlusOne = realLimit + 1;
+    const qb = AppDataSource.getRepository(Post)
+      .createQueryBuilder("p")
+      .orderBy('"createdAt"', "DESC") // in postgresql, column name is case sensitive
+      .take(realLimitPlusOne);
+    if (cursor) {
+      qb.where('"createdAt" < :cursor', { cursor: new Date(parseInt(cursor)) });
+    }
+
+    const posts = await qb.getMany();
+    return {
+      posts: posts.slice(0, realLimit),
+      hasMore: posts.length === realLimitPlusOne,
+    };
   }
 
   //? query to get a post by id

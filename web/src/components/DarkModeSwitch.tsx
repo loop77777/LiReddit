@@ -11,8 +11,9 @@ export const DarkModeSwitch = () => {
       // right={4}
       icon={isDark ? <SunIcon /> : <MoonIcon />}
       aria-label="Toggle Theme"
-      colorScheme="purple"
+      // colorScheme="tan"
       onClick={toggleColorMode}
+      // bg={"transparent"}
     />
   )
 }

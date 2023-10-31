@@ -128,7 +128,7 @@ export class UserResolver {
     if (!req.session.userId) {
       return null;
     }
-    return User.findOne(req.session.userId);
+    return User.findOne({ where: { id: req.session.userId } });
   }
 
   //? register mutation
