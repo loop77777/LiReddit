@@ -45,7 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
             logout({}); // we don't need to pass any options
           }}
           isLoading={logoutFetching}
-          // variant="link"
+          // variant="outline"
           colorScheme="purple"
         >
           logout
