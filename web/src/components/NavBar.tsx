@@ -1,6 +1,6 @@
-import { Box, Button, Flex, Link } from "@chakra-ui/react";
+import { Box, Button, Flex } from "@chakra-ui/react";
 import React from "react";
-import NextLink from "next/link";
+import Link from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { DarkModeSwitch } from "../components/DarkModeSwitch";
 import { isServer } from "../../utils/isServer";
@@ -23,19 +23,26 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
   } else if (!data?.me) {
     //user not logged in
     body = (
-      <Box>
-        <Link href="/login" color={"white"} mr={3}>
-          login
-        </Link>
-        <Link href="/register" color={"white"} mr={3}>
-          register
-        </Link>
-      </Box>
+      <Flex>
+        <Box mr={3}>
+          <Link href="/login" color={"white"}>
+            login
+          </Link>
+        </Box>
+        <Box mr={3}>
+          <Link href="/register" color={"white"}>
+            register
+          </Link>
+        </Box>
+      </Flex>
     );
   } else {
     //user is logged in
     body = (
       <Flex align={"center"}>
+        <Button mr={5} colorScheme="purple">
+          <Link href="/create-post">create post</Link>
+        </Button>
         <Box mr={3} color={"white"}>
           {data.me.username}
         </Box>
@@ -45,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
             logout({}); // we don't need to pass any options
           }}
           isLoading={logoutFetching}
-          // variant="outline"
+          variant="outline"
           colorScheme="purple"
         >
           logout
@@ -55,10 +62,16 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
   }
   return (
     <Flex zIndex={1} position="sticky" top={0} bg="tan" p={4}>
-      {/* purple */}
-      <Flex ml={"auto"} alignItems={"center"}>
-        {body}
-        <DarkModeSwitch />
+      <Flex flex={1} m={"auto"} maxW={800} align={"center"}>
+        <Link href="/">
+          <Box fontSize="xl" fontWeight="bold">
+            LiReddit
+          </Box>
+        </Link>
+        <Flex ml={"auto"} alignItems={"center"}>
+          {body}
+          <DarkModeSwitch />
+        </Flex>
       </Flex>
     </Flex>
   );

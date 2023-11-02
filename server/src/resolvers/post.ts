@@ -112,7 +112,7 @@ export class PostResolver {
 
     const replacements: any[] = [realLimitPlusOne];
 
-    if(req.session.userId) {
+    if (req.session.userId) {
       replacements.push(req.session.userId);
     }
 
@@ -167,8 +167,8 @@ export class PostResolver {
 
   //? query to get a post by id
   @Query(() => Post, { nullable: true })
-  post(@Arg("id") id: number): Promise<Post | null> {
-    return Post.findOne({ where: { id } });
+  post(@Arg("id", () => Int) id: number): Promise<Post | null> {
+    return Post.findOne({ where: { id }, relations: ["creator"] });
   }
 
   //? mutation to create a post
@@ -203,8 +203,22 @@ export class PostResolver {
 
   //? mutation to delete a post
   @Mutation(() => Boolean)
-  async deletePost(@Arg("id") id: number): Promise<boolean> {
-    await Post.delete({ id }); // delete the post
+  @UseMiddleware(isAuth) // to check if user is logged in
+  async deletePost(
+    @Arg("id", () => Int) id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    // non cascade way
+    // const post = await Post.findOne({ where: { id } }); // find the post
+    // if (!post) {
+    //   return false;
+    // }
+    // if (post.creatorId !== req.session.userId) {
+    //   throw new Error("not authorized");
+    // }
+    // await Updoot.delete({ postId: id }); // delete the updoots of the post
+    // await Post.delete({ id }); // delete the post, only if the user is the creator of the post
+    await Post.delete({ id, creatorId: req.session.userId }); // delete the post, only if the user is the creator of the post
     return true;
   }
 }
