@@ -1,5 +1,5 @@
 import { fetchExchange } from "urql";
-import { Resolver, cacheExchange } from "@urql/exchange-graphcache";
+import { Cache, Resolver, cacheExchange } from "@urql/exchange-graphcache";
 
 import {
   DeletePostMutationVariables,
@@ -40,7 +40,7 @@ const cursorPagination = (): Resolver => {
     const { parentKey: entityKey, fieldName } = info;
     // entityKey: Query, fieldName: posts
     const allFields = cache.inspectFields(entityKey);
-    console.log("allFields: ", allFields);
+    // console.log("allFields: ", allFields);
     // we are inspecting all the fields in the cache currently, and we are filtering the fields that have the same fieldName as the one we are looking for
     const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
     // if there are no fields, we return undefined
@@ -78,61 +78,18 @@ const cursorPagination = (): Resolver => {
       hasMore, // we are returning true for hasMore for now
       posts: results,
     };
-
-    // const visited = new Set();
-    // let result: NullArray<string> = [];
-    // let prevOffset: number | null = null;
-
-    // for (let i = 0; i < size; i++) {
-    //   const { fieldKey, arguments: args } = fieldInfos[i];
-    //   if (args === null || !compareArgs(fieldArgs, args)) {
-    //     continue;
-    //   }
-
-    //   const links = cache.resolve(entityKey, fieldKey) as string[];
-    //   const currentOffset = args[cursorArgument];
-
-    //   if (
-    //     links === null ||
-    //     links.length === 0 ||
-    //     typeof currentOffset !== "number"
-    //   ) {
-    //     continue;
-    //   }
-
-    //   const tempResult: NullArray<string> = [];
-
-    //   for (let j = 0; j < links.length; j++) {
-    //     const link = links[j];
-    //     if (visited.has(link)) continue;
-    //     tempResult.push(link);
-    //     visited.add(link);
-    //   }
-
-    //   if (
-    //     (!prevOffset || currentOffset > prevOffset) ===
-    //     (mergeMode === "after")
-    //   ) {
-    //     result = [...result, ...tempResult];
-    //   } else {
-    //     result = [...tempResult, ...result];
-    //   }
-
-    //   prevOffset = currentOffset;
-    // }
-
-    // const hasCurrentPage = cache.resolve(entityKey, fieldName, fieldArgs);
-    // if (hasCurrentPage) {
-    //   return result;
-    // } else if (!(info as any).store.schema) {
-    //   return undefined;
-    // } else {
-    //   info.partial = true;
-    //   return result;
-    // }
   };
 };
 
+function invalidateAllPosts(cache: Cache) {
+  const allFields = cache.inspectFields("Query");
+  console.log("allFields: ", allFields);
+  const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
+  console.log("fieldInfos: ", fieldInfos)
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "posts", fi.arguments || {});
+  });
+}
 // we are creating a function that will return the urql client and do ssr on the server
 // we are passing the ssrExchange as a parameter
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
@@ -183,7 +140,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 `,
                 { id: postId } as any
               );
-              console.log("data: ", data);
+              // console.log("data: ", data);
               if (data) {
                 // if the user has already voted, we are returning
                 if (data.voteStatus === value) return;
@@ -201,15 +158,9 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               }
             },
             // create post mutation, it's working fine without this. but we are adding this to update the cache for the post
-            // createPost: (_result, args, cache, info) => {
-            //   const allFields = cache.inspectFields("Query");
-            //   const fieldInfos = allFields.filter(
-            //     (info) => info.fieldName === "posts"
-            //   );
-            //   fieldInfos.forEach((fi) => {
-            //     cache.invalidate("Query", "posts", fi.arguments || {});
-            //   });
-            // },
+            CreatePost: (_result, args, cache, info) => {
+              invalidateAllPosts(cache);
+            },
             // login mutation
             login: (_result, args, cache, info) => {
               betterUpdateQuery<LoginMutation, MeQuery>(
@@ -226,6 +177,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   }
                 }
               );
+              invalidateAllPosts(cache);
             },
             // register mutation
             register: (_result, args, cache, info) => {

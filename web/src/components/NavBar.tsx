@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { DarkModeSwitch } from "../components/DarkModeSwitch";
 import { isServer } from "../../utils/isServer";
-// import Link from "next/link";
+import { useRouter } from "next/router";
 
 interface NavbarProps {}
 
 export const Navbar: React.FC<NavbarProps> = ({}) => {
+  const router = useRouter();
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
   // setting me query to not run on initial render
   const [{ data, fetching }] = useMeQuery({
@@ -48,8 +49,9 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
         </Box>
         <Button
           mr={3}
-          onClick={() => {
-            logout({}); // we don't need to pass any options
+          onClick={async () => {
+            await logout({}); // we don't need to pass any options
+            router.reload(); // reload the page
           }}
           isLoading={logoutFetching}
           variant="outline"

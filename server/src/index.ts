@@ -17,6 +17,8 @@ import cors from "cors";
 // connection is deprecated,changed to datasource
 import AppDataSource from "./datasource";
 import { Post } from "./entities/Post";
+import { createUserLoader } from "./utils/createUserLoader";
+import { createUpdootLoader } from "./utils/createUpdootLoader";
 // main function
 const main = async () => {
   // typeorm config
@@ -29,9 +31,9 @@ const main = async () => {
     .catch((err) => {
       console.error("Error during Data Source initialization", err);
     });
-  // delete all posts 
+  // delete all posts
   // await Post.delete({});
-  await AppDataSource.runMigrations()
+  await AppDataSource.runMigrations();
 
   // mikro-orm config
   // *const orm = await MikroORM.init(microConfig);
@@ -73,7 +75,13 @@ const main = async () => {
     }),
     // context is a special object that is accessible by all resolvers
     // if show errors of type different, remove myContext
-    context: ({ req, res }) => ({ req, res, redis }), // added redis to access it in resolvers
+    context: ({ req, res }) => ({
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+      updootLoader: createUpdootLoader(),
+    }), // added redis to access it in resolvers
   });
 
   apolloServer.applyMiddleware({
