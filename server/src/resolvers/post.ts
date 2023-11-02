@@ -186,19 +186,24 @@ export class PostResolver {
 
   //? mutation to update a post
   @Mutation(() => Post, { nullable: true })
+  @UseMiddleware(isAuth) // to check if user is logged in
   async updatePost(
-    @Arg("id") id: number,
-    @Arg("title", () => String, { nullable: true }) title: string
+    @Arg("id", () => Int) id: number,
+    @Arg("title") title: string,
+    @Arg("text") text: string,
+    @Ctx() { req }: MyContext
   ): Promise<Post | null> {
-    // 2 sql queries
-    const post = await Post.findOne({ where: { id } }); // find the post
-    if (!post) {
-      return null;
-    }
-    if (typeof title !== "undefined") {
-      Post.update({ id }, { title }); // update the post
-    }
-    return post;
+    const result = await AppDataSource.createQueryBuilder()
+      .update(Post)
+      .set({ title, text })
+      .where('id = :id and "creatorId" = :creatorId', {
+        id,
+        creatorId: req.session.userId,
+      })
+      .returning("*")
+      .execute();
+
+    return result.raw[0];
   }
 
   //? mutation to delete a post
@@ -213,11 +218,14 @@ export class PostResolver {
     // if (!post) {
     //   return false;
     // }
+
     // if (post.creatorId !== req.session.userId) {
     //   throw new Error("not authorized");
     // }
+
     // await Updoot.delete({ postId: id }); // delete the updoots of the post
     // await Post.delete({ id }); // delete the post, only if the user is the creator of the post
+
     await Post.delete({ id, creatorId: req.session.userId }); // delete the post, only if the user is the creator of the post
     return true;
   }

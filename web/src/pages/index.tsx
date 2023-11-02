@@ -1,23 +1,12 @@
+import { Box, Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import { DarkModeSwitch } from "../components/DarkModeSwitch";
-import { Navbar } from "../components/NavBar";
-import { createUrqlClient } from "../../utils/createUrqlClient";
-import { useDeletePostMutation, usePostsQuery } from "../generated/graphql";
-import { Layout } from "../components/Layout";
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Icon,
-  IconButton,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import { useState } from "react";
 import Link from "next/link";
-import { ChevronDownIcon, ChevronUpIcon, DeleteIcon } from "@chakra-ui/icons";
+import { useState } from "react";
+import { createUrqlClient } from "../../utils/createUrqlClient";
+import { EditDeletePostButtons } from "../components/EditDeletePostButtons";
+import { Layout } from "../components/Layout";
 import { UpdootSection } from "../components/UpdootSection";
+import { useMeQuery, usePostsQuery } from "../generated/graphql";
 
 const Index = () => {
   const [variables, setVariables] = useState<{
@@ -28,12 +17,9 @@ const Index = () => {
     cursor: null,
   });
 
-  console.log("variables", variables);
   const [{ data, fetching }] = usePostsQuery({
     variables,
   });
-
-  const [, deletePost] = useDeletePostMutation();
 
   if (!fetching && !data) {
     return <div>query failed for some reason</div>;
@@ -55,15 +41,9 @@ const Index = () => {
                 <Text>posted by {p.creator.username}</Text>
                 <Flex align={"center"}>
                   <Text mt={4}>{p.textSnippet}</Text>
-                  <IconButton
-                    aria-label="Delete Post"
-                    ml={"auto"}
-                    icon={<DeleteIcon />}
-                    colorScheme="purple"
-                    onClick={() => {
-                      deletePost({ id: p.id });
-                    }}
-                  />
+                  <Box ml={"auto"}>
+                    <EditDeletePostButtons id={p.id} creatorId={p.creator.id} />
+                  </Box>
                 </Flex>
               </Box>
             </Flex>
