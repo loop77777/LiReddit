@@ -1,4 +1,4 @@
-import { Button, Box, Link, Flex } from "@chakra-ui/react";
+import { Button, Box, Link, Flex, useToast } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
@@ -12,6 +12,7 @@ import { createUrqlClient } from "../../../utils/createUrqlClient";
 
 //? using router query params to get the token instead of getInitialProps
 const ChangePassword: NextPage = () => {
+  const toast = useToast();
   const router = useRouter();
   const [, changePassword] = useChangePasswordMutation();
   const [tokenError, setTokenError] = useState("");
@@ -37,6 +38,10 @@ const ChangePassword: NextPage = () => {
           } else if (response.data?.changePassword.user) {
             //worked
             router.push("/");
+            toast({
+              title: "Password changed successfully",
+              status: "success",
+            });
           }
         }}
       >

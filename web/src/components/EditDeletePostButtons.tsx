@@ -1,5 +1,5 @@
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { Box, IconButton } from "@chakra-ui/react";
+import { Box, IconButton, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import React from "react";
 import { useDeletePostMutation, useMeQuery } from "../generated/graphql";
@@ -13,6 +13,7 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
   id,
   creatorId,
 }) => {
+  const toast = useToast();
   const [{ data: meData }] = useMeQuery();
 
   const [, deletePost] = useDeletePostMutation();
@@ -36,6 +37,10 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
         colorScheme="purple"
         onClick={() => {
           deletePost({ id });
+          toast({
+            title: "Post deleted successfully",
+            status: "success",
+          });
         }}
       />
     </Box>

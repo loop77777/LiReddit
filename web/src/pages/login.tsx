@@ -1,4 +1,4 @@
-import { Box, Button, Link, Flex } from "@chakra-ui/react";
+import { Box, Button, Link, Flex, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
 import React from "react";
@@ -10,6 +10,7 @@ import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 
 const Login: React.FC<{}> = ({}) => {
+  const toast = useToast();
   const router = useRouter();
   const [, login] = useLoginMutation();
   return (
@@ -27,6 +28,10 @@ const Login: React.FC<{}> = ({}) => {
             } else {
               //worked
               router.push("/");
+              toast({
+                title: "Logged in successfully",
+                status: "success",
+              });
             }
           }
         }}

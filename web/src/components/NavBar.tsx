@@ -1,4 +1,4 @@
-import { Box, Button, Flex } from "@chakra-ui/react";
+import { Box, Button, Flex, useToast } from "@chakra-ui/react";
 import React from "react";
 import Link from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 interface NavbarProps {}
 
 export const Navbar: React.FC<NavbarProps> = ({}) => {
+  const toast = useToast();
   const router = useRouter();
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
   // setting me query to not run on initial render
@@ -52,6 +53,10 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
           onClick={async () => {
             await logout({}); // we don't need to pass any options
             router.reload(); // reload the page
+            toast({
+              title: "Logged out successfully",
+              status: "success",
+            });
           }}
           isLoading={logoutFetching}
           variant="outline"

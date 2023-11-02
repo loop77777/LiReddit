@@ -85,7 +85,7 @@ function invalidateAllPosts(cache: Cache) {
   const allFields = cache.inspectFields("Query");
   console.log("allFields: ", allFields);
   const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
-  console.log("fieldInfos: ", fieldInfos)
+  console.log("fieldInfos: ", fieldInfos);
   fieldInfos.forEach((fi) => {
     cache.invalidate("Query", "posts", fi.arguments || {});
   });
@@ -96,7 +96,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   //  console.log("ctx: ", ctx)
   let cookie = "";
   if (isServer()) {
-    cookie = ctx.req.headers.cookie;
+    cookie = ctx?.req?.headers?.cookie;
   }
 
   return {

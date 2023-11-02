@@ -36,23 +36,30 @@ const Index = () => {
         <div>loading...</div>
       ) : (
         <Stack spacing={8}>
-          {data!.posts.posts.map((p /* !p ? null : */) => (
-            <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-              <UpdootSection post={p} />
-              <Box flex={1}>
-                <Link href="/post/[id]" as={`/post/${p.id}`}>
-                  <Heading fontSize="xl">{p.title}</Heading>
-                </Link>
-                <Text>posted by {p.creator.username}</Text>
-                <Flex align={"center"}>
-                  <Text mt={4}>{p.textSnippet}</Text>
-                  <Box ml={"auto"}>
-                    <EditDeletePostButtons id={p.id} creatorId={p.creator.id} />
-                  </Box>
-                </Flex>
-              </Box>
-            </Flex>
-          ))}
+          {data!.posts.posts.map(
+            (
+              p /* !p ? null : (if get error on delete,otherwise it's working fine) */
+            ) => (
+              <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+                <UpdootSection post={p} />
+                <Box flex={1}>
+                  <Link href="/post/[id]" as={`/post/${p.id}`}>
+                    <Heading fontSize="xl">{p.title}</Heading>
+                  </Link>
+                  <Text>posted by {p.creator.username}</Text>
+                  <Flex align={"center"}>
+                    <Text mt={4}>{p.textSnippet}</Text>
+                    <Box ml={"auto"}>
+                      <EditDeletePostButtons
+                        id={p.id}
+                        creatorId={p.creator.id}
+                      />
+                    </Box>
+                  </Flex>
+                </Box>
+              </Flex>
+            )
+          )}
         </Stack>
       )}
       {data && data.posts.hasMore ? (

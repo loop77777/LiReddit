@@ -1,4 +1,4 @@
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
@@ -12,6 +12,7 @@ import {
 } from "../../../generated/graphql";
 
 const EditPost = ({}) => {
+  const toast = useToast();
   const router = useRouter();
   const intId = useGetIntId();
   const [{ data, fetching }] = usePostQuery({
@@ -36,6 +37,10 @@ const EditPost = ({}) => {
         initialValues={{ title: data.post.title, text: data.post.text }}
         onSubmit={async (values) => {
           await updatePost({ id: intId, ...values });
+          toast({
+            title: "Post updated successfully",
+            status: "success",
+          });
           router.back();
         }}
       >

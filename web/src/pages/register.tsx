@@ -1,4 +1,4 @@
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
 import React from "react";
@@ -12,6 +12,7 @@ import { createUrqlClient } from "../../utils/createUrqlClient";
 interface registerProps {}
 
 const Register: React.FC<registerProps> = ({}) => {
+  const toast = useToast();
   const router = useRouter();
   // use register hook from generated types
   const [, register] = useRegisterMutation(); // first param is the data, second is the function
@@ -27,6 +28,10 @@ const Register: React.FC<registerProps> = ({}) => {
             setErrors(toErrorMap(response.data.register.errors));
           } else if (response.data?.register.user) {
             router.push("/");
+            toast({
+              title: "Registered successfully",
+              status: "success",
+            });
           }
         }}
       >
