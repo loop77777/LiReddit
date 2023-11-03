@@ -1,5 +1,5 @@
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { Box, IconButton, useToast } from "@chakra-ui/react";
+import { Box, Flex, IconButton, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import React from "react";
 import { useDeletePostMutation, useMeQuery } from "../generated/graphql";
@@ -22,11 +22,10 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
   }
 
   return (
-    <Box>
+    <Flex gap={4}>
       <Link href="/post/edit/[id]" as={`/post/edit/${id}`}>
         <IconButton
           aria-label="Edit Post"
-          mr={4}
           icon={<EditIcon />}
           colorScheme="purple"
         />
@@ -43,6 +42,6 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
           });
         }}
       />
-    </Box>
+    </Flex>
   );
 };

@@ -1,4 +1,4 @@
-import { Box, Button, Link, Flex, useToast } from "@chakra-ui/react";
+import { Box, Button, Flex, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
 import React from "react";
@@ -8,6 +8,7 @@ import { useLoginMutation } from "../generated/graphql";
 import { toErrorMap } from "../../utils/toErrorMap";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
+import Link from "next/link";
 
 const Login: React.FC<{}> = ({}) => {
   const toast = useToast();
@@ -52,10 +53,9 @@ const Login: React.FC<{}> = ({}) => {
               />
             </Box>
             <Flex mt={2}>
-              <Link href="/forgot-password" ml={"auto"}>
-                {" "}
-                forgot password{" "}
-              </Link>
+              <Box ml="auto">
+                <Link href="/forgot-password">forgot password</Link>
+              </Box>
             </Flex>
             <Button
               mt={4}

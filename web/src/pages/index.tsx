@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, CircularProgress, Flex, Heading, Stack, Text } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import Link from "next/link";
 import { useState } from "react";
@@ -23,17 +23,19 @@ const Index = () => {
 
   if (!fetching && !data) {
     return (
-      <div>
+      <Flex align={"center"} direction={"column"}>
         <div>query failed for some reason</div>
         <div>{error?.message}</div>
-      </div>
+      </Flex>
     );
   }
 
   return (
     <Layout>
       {!data && fetching ? (
-        <div>loading...</div>
+        <Flex justify={"center"}>
+          <CircularProgress isIndeterminate color="purple.500" />
+        </Flex>
       ) : (
         <Stack spacing={8}>
           {data!.posts.posts.map(
@@ -75,6 +77,7 @@ const Index = () => {
             isLoading={fetching}
             m={"auto"}
             my={8}
+            mb={12}
             colorScheme="purple"
             variant={"outline"}
           >

@@ -1,4 +1,10 @@
-import { Box, Button, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Flex,
+  useToast,
+} from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
@@ -7,8 +13,8 @@ import { useGetIntId } from "../../../../utils/useGetIntId";
 import { InputField } from "../../../components/InputField";
 import { Layout } from "../../../components/Layout";
 import {
-    usePostQuery,
-    useUpdatePostMutation,
+  usePostQuery,
+  useUpdatePostMutation,
 } from "../../../generated/graphql";
 
 const EditPost = ({}) => {
@@ -24,11 +30,21 @@ const EditPost = ({}) => {
   const [, updatePost] = useUpdatePostMutation();
 
   if (fetching) {
-    return <Layout>Loading...</Layout>;
+    return (
+      <Layout>
+        <Flex justify={"center"}>
+          <CircularProgress isIndeterminate color="purple.500" />
+        </Flex>
+      </Layout>
+    );
   }
 
   if (!data?.post) {
-    return <Layout>Could not find post</Layout>;
+    return (
+      <Layout>
+        <Flex justify={"center"}>Could not find post</Flex>
+      </Layout>
+    );
   }
 
   return (
